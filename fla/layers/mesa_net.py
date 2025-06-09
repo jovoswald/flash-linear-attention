@@ -65,6 +65,7 @@ class MesaNet(nn.Module):
         conv_bias: bool = False,
         layer_idx: int = None,
         norm_eps: float = 1e-5,
+        lambda_initial_value: float = 0.1,
         lambda_lower_bound: float = 0.25,
         max_cg_step_training: int = 30,
         max_cg_step_decoding: int = 30,
@@ -88,7 +89,7 @@ class MesaNet(nn.Module):
         self.head_k_dim = self.head_dim
         self.head_v_dim = int(self.head_dim * self.expand_v)
         self.layer_idx = layer_idx
-        self.lambda_lower_bound = lambda_lower_bound
+        self.lambda_initial_value = lambda_initial_value
         self.max_cg_step_training = max_cg_step_training
         self.max_cg_step_decoding = max_cg_step_decoding
 
@@ -131,7 +132,6 @@ class MesaNet(nn.Module):
         # name.endswith("bias") in param_grouping.py
         self.dt_bias._no_weight_decay = True
 
-        lambda_initial_value = 1.0
         init_lamb_value = torch.log(torch.exp(torch.tensor(lambda_initial_value - lambda_lower_bound)) - 1.0)
         init_lamb_params = torch.empty(hidden_size, dtype=torch.float32).fill_(init_lamb_value)
 
